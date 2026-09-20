@@ -1,0 +1,103 @@
+import type { User, Opportunity, Application, Notification } from '../types';
+import { opportunities as seedOpportunities } from '../lib/demoData';
+import { syncWorkspaceSnapshot } from './cloudSync';
+
+export type Profile = Record<string, any> & { currentSkills?: string[]; careerGoal?: string; desiredJobRole?: string; desiredInternship?: string; preferredIndustries?: string[] };
+export type AssessmentResult = { overall:number; technical:number; soft:number; aptitude:number; communication:number; problemSolving:number; strengths:string[]; gaps:string[]; recommendations:string[]; completedAt:string; domainScores?:Record<string,number> };
+export type LearningItem = { id:string; title:string; provider:string; skills:string[]; progress:number; status:'Enrolled'|'In Progress'|'Completed'; modules:number; completedModules:number; enrolledAt:string; completedAt?:string; certification?:string; videoUrl?:string; videoDuration?:number };
+export type Portfolio = { skills:string[]; courses:string[]; certifications:string[]; internships:string[]; projects:string[]; achievements:string[] };
+export type Interview = {id:string;applicationId:string;company:string;position:string;candidateId:string;candidateName:string;date:string;time:string;mode:string;link:string;status:'Scheduled'|'Updated'|'Cancelled'|'Completed';notes:string};
+export type Message = {id:string;senderId:string;receiverId:string;candidateId?:string;body:string;createdAt:string;read:boolean;context?:string};
+export type MentorshipRequest = {id:string;mentorId:string;mentorName:string;mentorRole:string;mentorExpertise:string;studentId:string;studentName:string;status:'Pending'|'Accepted'|'Declined';createdAt:string;topic?:string};
+export type AppState = { users: Array<User & { password?:string; profile?:Profile; assessment?:AssessmentResult; learning?:LearningItem[]; portfolio?:Portfolio; applications?:Application[]; notifications?:Notification[] }>; opportunities: Opportunity[]; interviews: Interview[]; messages: Message[]; mentorshipRequests: MentorshipRequest[] };
+
+const KEY='edulyra_app_state_v3'; const SESSION='edulyra_session_id';
+const now=()=>new Date().toISOString();
+const uid=()=>typeof globalThis.crypto?.randomUUID==='function' ? globalThis.crypto.randomUUID() : 'id_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);
+const defaultPortfolio=():Portfolio=>({skills:[],courses:[],certifications:[],internships:[],projects:[],achievements:[]});
+const seedUsers:any[]=[
+{id:'student-demo',name:'Alex Student',email:'student@demo.com',role:'student',password:'EduLyra@2026!Demo',profile:{currentSkills:['JavaScript','React','SQL','Git','HTML','CSS'],careerGoal:'Software Developer',desiredJobRole:'Software Developer',jobType:'Full-Time',desiredInternship:'Software Development',preferredIndustries:['Technology'],about:'Engineering student building practical software projects.',education:'B.Tech Computer Science',achievements:'Hackathon finalist'},portfolio:{...defaultPortfolio(),skills:['JavaScript','React','SQL','Git','HTML','CSS'],projects:['EduLyra Career Platform']},learning:[],applications:[],notifications:[]},
+{id:'faculty-demo',name:'Dr. Priya Faculty',email:'faculty@demo.com',role:'faculty',password:'EduLyra@2026!Demo',profile:{careerGoal:'Industry research collaboration',currentSkills:['Communication','Machine Learning','Python'],department:'Computer Science',designation:'Associate Professor',expertise:'Machine Learning',preferredIndustrySectors:['Technology'],bio:'Faculty member focused on applied AI and industry collaboration.',internshipPlans:[]},portfolio:{...defaultPortfolio(),skills:['Communication','Machine Learning','Python'],projects:['Applied GenAI Research']},learning:[],applications:[],notifications:[]},
+{id:'industry-demo',name:'Jordan Recruiter',email:'industry@demo.com',role:'industry',password:'EduLyra@2026!Demo',profile:{industrySector:'Technology',companyName:'NovaTech Labs',companyDescription:'Product engineering and technology solutions.',requiredSkills:['React','JavaScript','SQL']},portfolio:defaultPortfolio(),learning:[],applications:[],notifications:[]},
+{id:'institution-demo',name:'Institution Admin',email:'admin@demo.com',role:'institution',password:'EduLyra@2026!Demo',profile:{institutionName:'EduLyra Institute of Technology',institutionType:'University',departments:'Computer Science, ECE, Mechanical'},portfolio:defaultPortfolio(),learning:[],applications:[],notifications:[]}];
+
+function migrate(raw:any):AppState|null{
+ try{
+  if(!raw?.users)return null;
+  const users=raw.users.map((u:any)=>({...u,portfolio:u.portfolio||defaultPortfolio(),learning:u.learning||[],applications:u.applications||[],notifications:u.notifications||[]}));
+  return {users,opportunities:raw.opportunities||seedOpportunities,interviews:raw.interviews||[],messages:raw.messages||[],mentorshipRequests:raw.mentorshipRequests||[]};
+ }catch{return null}
+}
+function initial():AppState{const raw=localStorage.getItem(KEY);if(raw){const m=migrate(JSON.parse(raw));if(m)return m;}return{users:seedUsers,opportunities:seedOpportunities,interviews:[],messages:[],mentorshipRequests:[]};}
+function save(s:AppState){localStorage.setItem(KEY,JSON.stringify(s));window.dispatchEvent(new Event('edulyra:data'));const id=localStorage.getItem(SESSION);const user=id?s.users.find(x=>x.id===id):null;if(user)void syncWorkspaceSnapshot(user);}
+export function getState(){return initial();}
+export function resetDemoData(){localStorage.removeItem(KEY);localStorage.removeItem(SESSION);}
+export function currentUser(){const id=localStorage.getItem(SESSION);if(!id)return null;return getState().users.find(u=>u.id===id)||null;}
+export function publicUser(u:any):User{const{password,...rest}=u;return rest as User;}
+export function hydrateCloudUser(data:any){const s=initial();const existing=s.users.find(x=>x.id===data.id||x.email?.toLowerCase()===String(data.email||'').toLowerCase());if(existing)Object.assign(existing,data);else s.users.push({...data,portfolio:data.portfolio||defaultPortfolio(),learning:data.learning||[],applications:data.applications||[],notifications:data.notifications||[]});save(s);localStorage.setItem(SESSION,data.id);localStorage.setItem('edulyra_user',JSON.stringify(publicUser(data)));return publicUser(data); }
+export function login(email:string,password:string){const s=initial();const u=s.users.find(x=>x.email.toLowerCase()===email.trim().toLowerCase());if(!u)throw new Error('No account exists for this email.');if(u.password!==password)throw new Error('Incorrect password.');localStorage.setItem(SESSION,u.id);localStorage.setItem('edulyra_user',JSON.stringify(publicUser(u)));return publicUser(u);}
+export function register(data:any):User{const s=initial();const email=String(data.email||'').trim().toLowerCase();if(s.users.some(u=>u.email.toLowerCase()===email))throw new Error('An account with this email already exists.');if(String(data.password||'').length<8)throw new Error('Password must contain at least 8 characters.');const id='u_'+uid();const display=String(data.name||data.companyName||data.institutionName||'User').trim();const user:any={id,name:display,email,role:data.role,password:data.password,profile:{...data},portfolio:defaultPortfolio(),learning:[],applications:[],notifications:[{id:'welcome_'+id,title:'Welcome to EduLyra',body:'Complete your profile and take the skill assessment to unlock recommendations.',time:'Just now',read:false,type:'system'}]};s.users.push(user);save(s);localStorage.setItem(SESSION,id);localStorage.setItem('edulyra_user',JSON.stringify(publicUser(user)));return publicUser(user);}
+export function updateCurrent(mutator:(u:any,s:AppState)=>void){const s=initial();const id=localStorage.getItem(SESSION);const u=s.users.find(x=>x.id===id);if(!u)throw new Error('Please log in again.');mutator(u,s);save(s);localStorage.setItem('edulyra_user',JSON.stringify(publicUser(u)));return publicUser(u);}
+export function updateProfile(p:Profile){return updateCurrent(u=>{u.name=(p as any).displayName||u.name;u.profile={...(u.profile||{}),...p};});}
+export function saveAssessment(result:AssessmentResult){return updateCurrent(u=>{u.assessment=result;u.profile={...(u.profile||{}),currentSkills:[...new Set([...(u.profile?.currentSkills||[]),...result.strengths])]};u.portfolio=u.portfolio||defaultPortfolio();u.portfolio.skills=[...new Set([...u.portfolio.skills,...result.strengths])];u.notifications=[{id:uid(),title:'Assessment completed',body:`Your overall score is ${result.overall}%. Your Skill Gap analysis is ready.`,time:'Just now',read:false,type:'system'},...(u.notifications||[])]});}
+export function getMyData(){return currentUser();}
+export function getOpportunities(){return getState().opportunities;}
+
+export function getMentorshipRequests(){
+  const s=getState();
+  const u=currentUser();
+  if(!u)return [];
+  return s.mentorshipRequests.filter(r=>r.studentId===u.id||r.mentorId===u.id);
+}
+
+export function requestMentorship(mentor:{id:string;name:string;role:string;expertise:string},topic='Career guidance'){
+  const u=currentUser();
+  if(!u)throw new Error('Please log in again.');
+  let created!:MentorshipRequest;
+  updateCurrent((user,s)=>{
+    const existing=s.mentorshipRequests.find(r=>r.studentId===user.id&&r.mentorId===mentor.id&&r.status==='Pending');
+    if(existing){created=existing;return;}
+    created={id:'mr_'+uid(),mentorId:mentor.id,mentorName:mentor.name,mentorRole:mentor.role,mentorExpertise:mentor.expertise,studentId:user.id,studentName:user.name,status:'Pending',createdAt:now(),topic};
+    s.mentorshipRequests.unshift(created);
+    user.notifications=[{id:uid(),title:'Mentorship request sent',body:`Your request to ${mentor.name} is pending mentor confirmation.`,time:'Just now',read:false,type:'system'},...(user.notifications||[])];
+  });
+  return created;
+}
+
+export function updateMentorshipRequest(id:string,status:'Accepted'|'Declined'){
+  return updateCurrent((user,s)=>{
+    const r=s.mentorshipRequests.find(x=>x.id===id);
+    if(!r)throw new Error('Mentorship request not found.');
+    if(r.mentorId!==user.id)throw new Error('Only the selected mentor can update this request.');
+    r.status=status;
+    const student=s.users.find(x=>x.id===r.studentId);
+    if(student){
+      student.notifications=[{id:uid(),title:`Mentorship request ${status.toLowerCase()}`,body:`${user.name} has ${status.toLowerCase()} your mentorship request.`,time:'Just now',read:false,type:'system'},...(student.notifications||[])];
+    }
+  });
+}
+
+export function addOpportunity(o:Partial<Opportunity>){let created!:Opportunity;updateCurrent((u,s)=>{created={id:'o_'+uid(),title:o.title||'Untitled opportunity',company:(u.profile?.companyName as string)||u.name,type:(o.type as any)||'Job',location:o.location||'Remote',workMode:(o.workMode as any)||'Remote',compensation:o.compensation||'Not specified',duration:o.duration,skills:o.skills||[],eligibility:o.eligibility||'Open to eligible applicants',deadline:o.deadline||'',match:0,description:o.description||''};s.opportunities.unshift(created);});return created;}
+export function updateOpportunity(id:string,patch:Partial<Opportunity>){return updateCurrent((u,s)=>{const o=s.opportunities.find(x=>x.id===id);if(!o)throw new Error('Opportunity not found.');if(o.company!==u.profile?.companyName&&u.role!=='faculty')throw new Error('You can only manage your own opportunities.');Object.assign(o,patch);});}
+export function deleteOpportunity(id:string){return updateCurrent((u,s)=>{const o=s.opportunities.find(x=>x.id===id);if(!o||o.company!==u.profile?.companyName)throw new Error('You can only remove your own opportunities.');s.opportunities=s.opportunities.filter(x=>x.id!==id);});}
+export function applyToOpportunity(op:Opportunity){let app!:Application;updateCurrent(u=>{const exists=(u.applications||[]).find((a:any)=>a.opportunityId===op.id);if(exists){app=exists;return;}app={id:'a_'+uid(),opportunityId:op.id,company:op.company,role:op.title,appliedDate:new Date().toISOString().slice(0,10),stage:'Applied',nextAction:'Application under review'};u.applications=[app,...(u.applications||[])];u.notifications=[{id:uid(),title:'Application submitted',body:`Your application for ${op.title} at ${op.company} was submitted.`,time:'Just now',read:false,type:'application'},...(u.notifications||[])]});return app;}
+export function deleteApplication(id:string){return updateCurrent(u=>{u.applications=(u.applications||[]).filter((a:any)=>a.id!==id);});}
+export function saveOpportunity(op:Opportunity){return updateCurrent(u=>{u.profile={...(u.profile||{}),savedOpportunities:[...new Set([...(u.profile?.savedOpportunities||[]),op.id])]};});}
+export function completeLearning(id:string,title:string,skills:string[]=[]){return updateCurrent(u=>{u.learning=u.learning||[];let x=u.learning.find((a:any)=>a.id===id);if(!x){x={id,title,provider:'EduLyra Learning',skills,progress:100,status:'Completed',modules:5,completedModules:5,enrolledAt:now(),completedAt:now(),certification:`${title} Certificate`};u.learning.push(x)}else{x.progress=100;x.completedModules=x.modules;x.status='Completed';x.completedAt=now();x.certification=`${title} Certificate`;}const p=u.portfolio||defaultPortfolio();p.courses=[...new Set([...p.courses,title])];if(x.certification)p.certifications=[...new Set([...p.certifications,x.certification])];p.skills=[...new Set([...p.skills,...skills])];u.portfolio=p;});}
+export function enrollLearning(item:Omit<LearningItem,'enrolledAt'|'status'|'progress'|'completedModules'>){return updateCurrent(u=>{u.learning=u.learning||[];if(!u.learning.some((x:any)=>x.id===item.id))u.learning.push({...item,enrolledAt:now(),status:'Enrolled',progress:0,completedModules:0});});}
+export function updateLearningProgress(id:string,progress:number){return updateCurrent(u=>{u.learning=u.learning||[];const x=u.learning.find((a:any)=>a.id===id);if(!x)return;x.progress=Math.max(0,Math.min(100,Math.round(progress)));x.completedModules=x.progress>=100?x.modules:Math.floor(x.modules*x.progress/100);x.status=x.progress>=100?'Completed':x.progress>0?'In Progress':'Enrolled';if(x.status==='Completed'){x.completedAt=x.completedAt||now();x.certification=x.certification||`${x.title} Certificate`;const p=u.portfolio||defaultPortfolio();p.courses=[...new Set([...p.courses,x.title])];p.certifications=[...new Set([...p.certifications,x.certification])];p.skills=[...new Set([...p.skills,...x.skills])];u.portfolio=p;}});}
+export function markNotification(id:string){return updateCurrent(u=>{u.notifications=(u.notifications||[]).map((n:any)=>n.id===id?{...n,read:true}:n);});}
+export function markAllNotifications(){return updateCurrent(u=>{u.notifications=(u.notifications||[]).map((n:any)=>({...n,read:true}));});}
+export function allUsers(){return getState().users;}
+function recruiterOwnsApplication(s:AppState,industryId:string,applicationId:string){for(const u of s.users){const a=(u.applications||[]).find((x:any)=>x.id===applicationId);if(a){const o=s.opportunities.find(x=>x.id===a.opportunityId);return !!o&&o.company===s.users.find(x=>x.id===industryId)?.profile?.companyName;}}return false;}
+function notifyCandidate(candidate:any,title:string,body:string){candidate.notifications=[{id:uid(),title,body,time:'Just now',read:false,type:'application'},...(candidate.notifications||[])];}
+export function updateApplicationForCandidate(applicationId:string,stage:Application['stage'],extra:Partial<Application>={}){const s=initial();const me=currentUser();if(!me)throw new Error('Please log in again.');if(me.role==='industry'&&!recruiterOwnsApplication(s,me.id,applicationId))throw new Error('This application is not for your company.');let updated:any=null;let candidate:any=null;for(const u of s.users){const app=(u.applications||[]).find((a:any)=>a.id===applicationId);if(!app)continue;Object.assign(app,{stage,...extra});app.nextAction=stage==='AI Shortlisted'?'Review candidate and invite for interview':stage==='Interview'?'Attend scheduled interview':stage==='Selected'?'Offer / joining details from recruiter':stage==='Rejected'?'Review Skill Gaps and improve relevant skills':'Application under review';updated=app;candidate=u;break;}if(!updated)throw new Error('Application not found.');notifyCandidate(candidate,'Application status updated',`Your ${updated.role} application is now ${stage}.`);if(stage==='Selected'||stage==='AI Shortlisted')notifyCandidate(candidate,stage==='Selected'?'Selection update':'Candidate shortlisted',stage==='Selected'?`You have been selected for ${updated.role} at ${updated.company}.`:`You were shortlisted for ${updated.role}. A recruiter may contact you next.`);save(s);const fresh=s.users.find(x=>x.id===me.id);if(fresh)localStorage.setItem('edulyra_user',JSON.stringify(publicUser(fresh)));return updated;}
+export function updateApplicationStage(applicationId:string,stage:Application['stage']){return updateApplicationForCandidate(applicationId,stage);}
+export function aiShortlistApplication(applicationId:string,score:number){if(score<70)throw new Error('Candidate does not meet the transparent AI review threshold.');return updateApplicationForCandidate(applicationId,'AI Shortlisted');}
+export function inviteForInterview(applicationId:string,date?:string,details:any={}){const s=initial();const me=currentUser();if(!me||me.role!=='industry')throw new Error('Only an industry recruiter can schedule interviews.');if(!recruiterOwnsApplication(s,me.id,applicationId))throw new Error('This application is not for your company.');const candidate=s.users.find(u=>(u.applications||[]).some((a:any)=>a.id===applicationId));const app=candidate?.applications?.find((a:any)=>a.id===applicationId);if(!candidate||!app)throw new Error('Application not found.');app.stage='Interview';app.interviewRequired=true;app.interviewDate=date;app.nextAction='Attend scheduled interview';const interview:Interview={id:'i_'+uid(),applicationId,company:app.company,position:app.role,candidateId:candidate.id,candidateName:candidate.name,date:date||new Date().toISOString().slice(0,10),time:details.time||'10:00',mode:details.mode||'Online',link:details.link||'',status:'Scheduled',notes:details.notes||''};s.interviews=[interview,...s.interviews];notifyCandidate(candidate,'Interview scheduled',`${app.company} scheduled an interview for ${app.role} on ${interview.date} at ${interview.time}.`);s.messages.push({id:uid(),senderId:me.id,receiverId:candidate.id,candidateId:candidate.id,body:`Interview scheduled for ${app.role} on ${interview.date} at ${interview.time}. Mode: ${interview.mode}.`,createdAt:now(),read:false,context:app.role});save(s);return interview;}
+export function updateInterview(id:string,patch:Partial<Interview>){return updateCurrent((u,s)=>{if(u.role!=='industry')throw new Error('Only industry can manage interviews.');const i=s.interviews.find(x=>x.id===id);if(!i||i.company!==u.profile?.companyName)throw new Error('Interview not found.');Object.assign(i,patch);if(patch.status==='Cancelled'){const c=s.users.find(x=>x.id===i.candidateId);if(c)notifyCandidate(c,'Interview cancelled',`The interview for ${i.position} was cancelled by ${i.company}.`);}});}
+export function removeInterview(id:string){updateInterview(id,{status:'Cancelled'});}
+export function getInterviews(){return getState().interviews;}
+export function getMessagesForUser(){const me=currentUser();if(!me)return [];return getState().messages.filter(m=>m.senderId===me.id||m.receiverId===me.id);}
+export function sendMessage(receiverId:string,body:string,context?:string){return updateCurrent((u,s)=>{const receiver=s.users.find(x=>x.id===receiverId);if(!receiver)throw new Error('Recipient not found.');s.messages.push({id:uid(),senderId:u.id,receiverId,candidateId:receiver.role==='student'?receiver.id:undefined,body:body.trim(),createdAt:now(),read:false,context});if(receiver.notifications)notifyCandidate(receiver,'New message',`${u.name}: ${body.trim().slice(0,120)}`);});}
+export function recruitmentAnalytics(){const s=initial();const me=currentUser();const company=me?.profile?.companyName;const own=s.opportunities.filter(o=>o.company===company).map(o=>o.id);const apps=s.users.flatMap(u=>(u.applications||[]).filter((a:any)=>own.includes(a.opportunityId)).map((a:any)=>({...a,candidate:u.name,candidateId:u.id})));return {opportunities:own.length,applicants:apps.length,shortlisted:apps.filter((a:any)=>['AI Shortlisted','Interview','Selected'].includes(a.stage)).length,hired:apps.filter((a:any)=>a.stage==='Selected').length,rejected:apps.filter((a:any)=>a.stage==='Rejected').length,interview:apps.filter((a:any)=>a.stage==='Interview').length,apps};}

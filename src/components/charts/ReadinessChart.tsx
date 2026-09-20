@@ -1,0 +1,4 @@
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+export function ReadinessChart({data}:{data:any[]}) {
+ return <div className="h-72 w-full"><ResponsiveContainer><AreaChart data={data}><defs><linearGradient id="readiness" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.22}/><stop offset="95%" stopColor="#6366f1" stopOpacity={0}/></linearGradient></defs><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0"/><XAxis dataKey="month" tickLine={false} axisLine={false}/><YAxis domain={[0,100]} tickLine={false} axisLine={false}/><Tooltip/><Area type="monotone" dataKey="readiness" stroke="#4f46e5" fill="url(#readiness)" strokeWidth={3}/></AreaChart></ResponsiveContainer></div>;
+}

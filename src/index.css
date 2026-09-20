@@ -1,0 +1,915 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================
+   SKILL⁵CONATION
+   Global Design System
+   ========================================================= */
+
+:root {
+  /* Brand */
+  --sc-midnight: #0B1020;
+  --sc-midnight-light: #070B16;
+
+  --sc-violet: #7C3AED;
+  --sc-violet-light: #6D28D9;
+  --sc-violet-dark: #6D28D9;
+
+  --sc-mint: #06B6D4;
+  --sc-mint-light: #22D3EE;
+  --sc-mint-dark: #0891b2;
+
+  --sc-amber: #fbbf24;
+  --sc-amber-light: #fcd34d;
+  --sc-amber-dark: #f59e0b;
+
+  /* Background */
+  --sc-background: #f7f7fc;
+  --sc-surface: #ffffff;
+  --sc-surface-soft: #f1f0ff;
+
+  /* Text */
+  --sc-text: #171a2b;
+  --sc-text-secondary: #555b73;
+  --sc-text-muted: #7c8299;
+  --sc-text-light: #a5a9ba;
+
+  /* Borders */
+  --sc-border: #e5e4ef;
+  --sc-border-light: #eeedf5;
+
+  /* Status */
+  --sc-success: #10b981;
+  --sc-warning: #f59e0b;
+  --sc-danger: #ef4444;
+  --sc-info: #7c3aed;
+
+  /* Shadows */
+  --sc-shadow-sm: 0 2px 8px rgba(17, 20, 45, 0.05);
+  --sc-shadow-md: 0 8px 30px rgba(17, 20, 45, 0.08);
+  --sc-shadow-lg: 0 20px 50px rgba(17, 20, 45, 0.12);
+  --sc-shadow-violet: 0 12px 35px rgba(124, 58, 237, 0.2);
+
+  /* Radius */
+  --sc-radius-sm: 10px;
+  --sc-radius-md: 16px;
+  --sc-radius-lg: 24px;
+  --sc-radius-xl: 32px;
+
+  /* Typography */
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  color: var(--sc-text);
+  background: var(--sc-background);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* =========================================================
+   GLOBAL RESET
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+
+  color: var(--sc-text);
+
+  background:
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(124, 58, 237, 0.04),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(45, 212, 191, 0.04),
+      transparent 25%
+    ),
+    var(--sc-background);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+::selection {
+  background: rgba(124, 58, 237, 0.2);
+  color: var(--sc-midnight);
+}
+
+:focus-visible {
+  outline: 3px solid rgba(45, 212, 191, 0.55);
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c8c6d8;
+  border-radius: 999px;
+  border: 2px solid var(--sc-background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sc-violet);
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* =========================================================
+   COMPONENTS
+   ========================================================= */
+
+@layer components {
+
+  /* -------------------------------------------------------
+     CARD
+     ------------------------------------------------------- */
+
+  .card {
+    @apply rounded-2xl border bg-white;
+
+    border-color: var(--sc-border);
+    box-shadow: var(--sc-shadow-sm);
+
+    transition:
+      transform 200ms ease,
+      box-shadow 200ms ease,
+      border-color 200ms ease;
+  }
+
+  .card:hover {
+    border-color: #dcd9f0;
+    box-shadow: var(--sc-shadow-md);
+  }
+
+
+  /* -------------------------------------------------------
+     PRIMARY BUTTON
+     ------------------------------------------------------- */
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white;
+
+    background: linear-gradient(
+      135deg,
+      var(--sc-violet),
+      var(--sc-violet-light)
+    );
+
+    box-shadow:
+      0 6px 18px rgba(124, 58, 237, 0.2);
+
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      opacity 180ms ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+      0 10px 25px rgba(124, 58, 237, 0.28);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    box-shadow: none;
+  }
+
+
+  /* -------------------------------------------------------
+     SECONDARY BUTTON
+     ------------------------------------------------------- */
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border bg-white px-4 py-2.5 text-sm font-semibold;
+
+    border-color: var(--sc-border);
+    color: var(--sc-text);
+
+    transition:
+      background 180ms ease,
+      border-color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .btn-secondary:hover {
+    background: var(--sc-surface-soft);
+    border-color: #d8d3f0;
+    transform: translateY(-1px);
+  }
+
+
+  /* -------------------------------------------------------
+     MINT BUTTON
+     ------------------------------------------------------- */
+
+  .btn-mint {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold;
+
+    background: var(--sc-mint);
+    color: var(--sc-midnight);
+
+    box-shadow:
+      0 6px 18px rgba(45, 212, 191, 0.18);
+
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .btn-mint:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+      0 10px 25px rgba(45, 212, 191, 0.26);
+  }
+
+
+  /* -------------------------------------------------------
+     DARK BUTTON
+     ------------------------------------------------------- */
+
+  .btn-dark {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white;
+
+    background: var(--sc-midnight);
+
+    transition:
+      transform 180ms ease,
+      background 180ms ease;
+  }
+
+  .btn-dark:hover {
+    background: var(--sc-midnight-light);
+    transform: translateY(-1px);
+  }
+
+
+  /* -------------------------------------------------------
+     INPUT
+     ------------------------------------------------------- */
+
+  .input {
+    @apply w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm outline-none;
+
+    border-color: var(--sc-border);
+    color: var(--sc-text);
+
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      background 180ms ease;
+  }
+
+  .input::placeholder {
+    color: var(--sc-text-light);
+  }
+
+  .input:hover {
+    border-color: #d5d2e6;
+  }
+
+  .input:focus {
+    border-color: var(--sc-violet);
+
+    box-shadow:
+      0 0 0 4px rgba(124, 58, 237, 0.1);
+  }
+
+
+  /* -------------------------------------------------------
+     LABEL
+     ------------------------------------------------------- */
+
+  .label {
+    @apply mb-1.5 block text-sm font-semibold;
+
+    color: var(--sc-text);
+  }
+
+
+  /* -------------------------------------------------------
+     BADGE
+     ------------------------------------------------------- */
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold;
+  }
+
+
+  /* -------------------------------------------------------
+     AI BADGE
+     ------------------------------------------------------- */
+
+  .badge-ai {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
+
+    color: var(--sc-violet);
+    background: rgba(124, 58, 237, 0.1);
+
+    border: 1px solid rgba(124, 58, 237, 0.15);
+  }
+
+
+  /* -------------------------------------------------------
+     VERIFIED BADGE
+     ------------------------------------------------------- */
+
+  .badge-verified {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
+
+    color: #047857;
+    background: rgba(16, 185, 129, 0.1);
+
+    border: 1px solid rgba(16, 185, 129, 0.15);
+  }
+
+
+  /* -------------------------------------------------------
+     ACHIEVEMENT BADGE
+     ------------------------------------------------------- */
+
+  .badge-achievement {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
+
+    color: #92400e;
+    background: rgba(251, 191, 36, 0.14);
+
+    border: 1px solid rgba(251, 191, 36, 0.2);
+  }
+
+
+  /* -------------------------------------------------------
+     SKILL CHIP
+     ------------------------------------------------------- */
+
+  .skill-chip {
+    @apply inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold;
+
+    color: var(--sc-violet);
+    background: #f1f0ff;
+    border: 1px solid #e4e0fa;
+
+    transition:
+      background 180ms ease,
+      transform 180ms ease;
+  }
+
+  .skill-chip:hover {
+    background: #e9e5ff;
+    transform: translateY(-1px);
+  }
+
+
+  /* -------------------------------------------------------
+     SECTION CONTAINER
+     ------------------------------------------------------- */
+
+  .section-container {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8;
+  }
+
+
+  /* -------------------------------------------------------
+     GLASS PANEL
+     ------------------------------------------------------- */
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.72);
+
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+
+    border: 1px solid rgba(255, 255, 255, 0.65);
+
+    box-shadow:
+      0 12px 40px rgba(17, 20, 45, 0.08);
+  }
+
+
+  /* -------------------------------------------------------
+     DARK PANEL
+     ------------------------------------------------------- */
+
+  .dark-panel {
+    color: #ffffff;
+
+    background:
+      radial-gradient(
+        circle at 85% 10%,
+        rgba(124, 58, 237, 0.28),
+        transparent 32%
+      ),
+      radial-gradient(
+        circle at 15% 90%,
+        rgba(45, 212, 191, 0.14),
+        transparent 28%
+      ),
+      var(--sc-midnight);
+  }
+
+
+  /* -------------------------------------------------------
+     AI GRADIENT
+     ------------------------------------------------------- */
+
+  .ai-gradient {
+    background: linear-gradient(
+      135deg,
+      #7c3aed 0%,
+      #6366f1 45%,
+      #2dd4bf 100%
+    );
+  }
+
+
+  /* -------------------------------------------------------
+     BRAND GRADIENT TEXT
+     ------------------------------------------------------- */
+
+  .brand-gradient-text {
+    background: linear-gradient(
+      135deg,
+      var(--sc-violet),
+      var(--sc-mint)
+    );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
+  }
+
+
+  /* -------------------------------------------------------
+     SUBTLE GRID
+     ------------------------------------------------------- */
+
+  .skill-grid {
+    background-image:
+      linear-gradient(
+        rgba(124, 58, 237, 0.045) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        rgba(124, 58, 237, 0.045) 1px,
+        transparent 1px
+      );
+
+    background-size: 32px 32px;
+  }
+
+
+  /* -------------------------------------------------------
+     STATUS COLORS
+     ------------------------------------------------------- */
+
+  .text-success {
+    color: var(--sc-success);
+  }
+
+  .text-warning {
+    color: var(--sc-warning);
+  }
+
+  .text-danger {
+    color: var(--sc-danger);
+  }
+
+  .text-info {
+    color: var(--sc-info);
+  }
+
+}
+
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes skillFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes skillPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.65;
+  }
+}
+
+@keyframes skillGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 rgba(124, 58, 237, 0);
+  }
+
+  50% {
+    box-shadow:
+      0 0 35px rgba(124, 58, 237, 0.18);
+  }
+}
+
+.skill-float {
+  animation: skillFloat 4s ease-in-out infinite;
+}
+
+.skill-pulse {
+  animation: skillPulse 2s ease-in-out infinite;
+}
+
+.skill-glow {
+  animation: skillGlow 3s ease-in-out infinite;
+}
+/* =========================================================
+   EDU LYRA 2026 VISUAL SKIN
+   Rich indigo + electric cyan + violet + rose accents
+   ========================================================= */
+:root{
+  --sc-background:#f5f7ff;
+  --sc-surface:#ffffff;
+  --sc-surface-soft:#f0efff;
+  --sc-text:#17152f;
+  --sc-text-secondary:#565276;
+  --sc-text-muted:#77739a;
+  --sc-text-light:#a5a1bd;
+  --sc-border:#e6e3f4;
+  --sc-border-light:#efedf8;
+  --sc-violet:#6d28d9;
+  --sc-violet-light:#8b5cf6;
+  --sc-violet-dark:#5b21b6;
+  --sc-mint:#06b6d4;
+  --sc-mint-light:#22d3ee;
+  --sc-mint-dark:#0891b2;
+  --sc-rose:#ec4899;
+  --sc-midnight:#10102b;
+  --sc-midnight-light:#17163b;
+  --sc-shadow-sm:0 4px 16px rgba(58,39,125,.07);
+  --sc-shadow-md:0 12px 34px rgba(58,39,125,.11);
+  --sc-shadow-lg:0 24px 65px rgba(58,39,125,.16);
+}
+body{
+  background:
+    radial-gradient(circle at 5% -5%,rgba(139,92,246,.13),transparent 30%),
+    radial-gradient(circle at 95% 5%,rgba(34,211,238,.11),transparent 28%),
+    radial-gradient(circle at 70% 100%,rgba(236,72,153,.06),transparent 28%),
+    var(--sc-background);
+}
+.card{
+  background:rgba(255,255,255,.88);
+  border-color:rgba(111,92,180,.14);
+  box-shadow:var(--sc-shadow-sm);
+  backdrop-filter:blur(8px);
+}
+.card:hover{border-color:rgba(109,40,217,.22);box-shadow:var(--sc-shadow-md);transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,#6d28d9 0%,#8b5cf6 48%,#06b6d4 100%);box-shadow:0 8px 24px rgba(109,40,217,.22)}
+.btn-primary:hover{box-shadow:0 13px 30px rgba(109,40,217,.30)}
+.btn-mint{background:linear-gradient(135deg,#06b6d4,#22d3ee);color:#08152c}
+.btn-secondary{background:rgba(255,255,255,.88);border-color:#e2def3}
+.btn-secondary:hover{background:#f4f1ff;border-color:#cfc6f2}
+.input{background:rgba(255,255,255,.94);border-color:#dfdbef}
+.input:focus{border-color:#7c3aed;box-shadow:0 0 0 4px rgba(124,58,237,.12)}
+.skill-chip{background:linear-gradient(135deg,#f1edff,#e8fbff);border-color:#ddd5fb;color:#6425c5}
+.badge-ai{color:#6425c5;background:linear-gradient(135deg,#f0e9ff,#e5fbff);border-color:#ddd2fa}
+.ai-gradient{background:linear-gradient(135deg,#4c1d95 0%,#6d28d9 38%,#0891b2 78%,#ec4899 120%)}
+.brand-gradient-text{background:linear-gradient(135deg,#6d28d9,#0891b2 65%,#ec4899)}
+.dark-panel{background:radial-gradient(circle at 85% 10%,rgba(139,92,246,.34),transparent 32%),radial-gradient(circle at 15% 90%,rgba(34,211,238,.18),transparent 28%),#10102b}
+::selection{background:rgba(139,92,246,.25);color:#17152f}
+::-webkit-scrollbar-thumb{background:#c9c3e4}
+::-webkit-scrollbar-thumb:hover{background:#7c3aed}
+
+/* Upgrade common Tailwind surfaces across authenticated pages */
+.bg-white{background-color:rgba(255,255,255,.90)}
+.bg-slate-50{background-color:#f4f5fc}
+.bg-slate-100{background-color:#eceef8}
+.text-slate-900{color:#17152f}
+.text-slate-800{color:#24203f}
+.text-slate-700{color:#39335c}
+.text-slate-600{color:#565276}
+.text-slate-500{color:#77739a}
+.text-slate-400{color:#9691b0}
+.border-slate-100{border-color:#ebe8f5}
+.bg-violet-50{background-color:#f0eaff}
+.text-violet-700{color:#6425c5}
+.bg-cyan-50{background-color:#e7fbff}
+.text-cyan-700{color:#08758a}
+.text-cyan-600{color:#0891b2}
+.bg-emerald-50{background-color:#e9fbf4}
+
+/* =========================================================
+   FINAL EDU LYRA 10/10 THEME
+   Midnight #07051A · Purple #24104F · Violet #7C3AED
+   Blue #2563EB · Magenta #EC4899 · Cyan #22D3EE
+   ========================================================= */
+:root {
+  --edulyra-bg: #07051A;
+  --edulyra-deep: #24104F;
+  --edulyra-violet: #7C3AED;
+  --edulyra-blue: #2563EB;
+  --edulyra-magenta: #EC4899;
+  --edulyra-cyan: #22D3EE;
+  --edulyra-white: #F8FAFC;
+
+  /* Keep authenticated workspaces readable while using the same brand family. */
+  --sc-background: #F6F5FC;
+  --sc-surface: #FFFFFF;
+  --sc-surface-soft: #F1EDFF;
+  --sc-text: #17142E;
+  --sc-text-secondary: #58536F;
+  --sc-text-muted: #7C7694;
+  --sc-text-light: #A39DB8;
+  --sc-border: #E5E0F2;
+  --sc-border-light: #EEEAF7;
+  --sc-violet: var(--edulyra-violet);
+  --sc-violet-light: #8B5CF6;
+  --sc-violet-dark: #5B21B6;
+  --sc-mint: var(--edulyra-cyan);
+  --sc-mint-light: #67E8F9;
+  --sc-mint-dark: #0891B2;
+  --sc-midnight: var(--edulyra-bg);
+  --sc-midnight-light: #100B2E;
+  --sc-shadow-sm: 0 5px 18px rgba(36,16,79,.07);
+  --sc-shadow-md: 0 14px 38px rgba(36,16,79,.11);
+  --sc-shadow-lg: 0 28px 70px rgba(36,16,79,.17);
+}
+
+/* Premium landing/auth atmosphere */
+.landing-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  overflow: hidden;
+  color: var(--edulyra-white);
+  background:
+    radial-gradient(circle at 12% 12%, rgba(37,99,235,.28), transparent 26%),
+    radial-gradient(circle at 55% 28%, rgba(124,58,237,.32), transparent 34%),
+    radial-gradient(circle at 82% 18%, rgba(236,72,153,.22), transparent 25%),
+    radial-gradient(circle at 68% 92%, rgba(34,211,238,.12), transparent 28%),
+    var(--edulyra-bg);
+}
+.landing-shell::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10% auto;
+  height: 70%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(124,58,237,.18), transparent 62%);
+  filter: blur(18px);
+}
+.landing-shell::after {
+  content: "";
+  position: absolute;
+  width: 34rem;
+  height: 34rem;
+  right: -12rem;
+  top: 7rem;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(236,72,153,.16), transparent 68%);
+  filter: blur(22px);
+}
+
+/* Unify common Tailwind accents without changing component behavior. */
+.text-cyan-300 { color: var(--edulyra-cyan) !important; }
+.text-cyan-200 { color: #A5F3FC !important; }
+.text-cyan-600 { color: #0891B2 !important; }
+.text-cyan-700 { color: #0E7490 !important; }
+.bg-cyan-300 { background-color: var(--edulyra-cyan) !important; }
+.bg-cyan-50 { background-color: #ECFEFF !important; }
+.border-cyan-300 { border-color: rgba(34,211,238,.45) !important; }
+.border-cyan-100 { border-color: rgba(34,211,238,.22) !important; }
+.text-violet-600 { color: var(--edulyra-violet) !important; }
+.text-violet-700 { color: #6D28D9 !important; }
+.bg-violet-50 { background-color: #F1EDFF !important; }
+.text-emerald-500 { color: #10B981 !important; }
+
+/* Brand gradient used for high-value headlines and numbers. */
+.brand-gradient-text {
+  background: linear-gradient(110deg, #F8FAFC 5%, #A5F3FC 38%, #8B5CF6 70%, #F472B6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+}
+
+.ai-gradient {
+  background: linear-gradient(120deg, #24104F 0%, #7C3AED 38%, #2563EB 70%, #EC4899 100%) !important;
+}
+
+.dark-panel {
+  background:
+    radial-gradient(circle at 82% 12%, rgba(236,72,153,.20), transparent 28%),
+    radial-gradient(circle at 12% 85%, rgba(34,211,238,.13), transparent 28%),
+    linear-gradient(135deg, #07051A, #24104F 55%, #11102F) !important;
+}
+
+.btn-primary {
+  background: linear-gradient(110deg, #7C3AED 0%, #2563EB 58%, #EC4899 125%) !important;
+  box-shadow: 0 9px 28px rgba(124,58,237,.28), 0 0 0 1px rgba(255,255,255,.08) inset !important;
+}
+.btn-primary:hover {
+  box-shadow: 0 14px 34px rgba(124,58,237,.36), 0 0 28px rgba(236,72,153,.12) !important;
+}
+
+.card {
+  border-color: rgba(124,58,237,.13) !important;
+}
+.card:hover {
+  border-color: rgba(124,58,237,.25) !important;
+  box-shadow: var(--sc-shadow-md), 0 0 30px rgba(124,58,237,.05) !important;
+}
+
+/* Keep forms crisp and accessible on the light workspace. */
+.input:focus {
+  border-color: var(--edulyra-violet) !important;
+  box-shadow: 0 0 0 4px rgba(124,58,237,.12), 0 4px 18px rgba(124,58,237,.06) !important;
+}
+
+/* Subtle premium grid for intelligence/dashboard surfaces. */
+.skill-grid {
+  background-image:
+    linear-gradient(rgba(124,58,237,.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37,99,235,.045) 1px, transparent 1px) !important;
+  background-size: 32px 32px;
+}
+
+/* =========================================================
+   EDU LYRA SIGNATURE EXPERIENCE
+   ========================================================= */
+:root{
+  --edu-midnight:#07051A;
+  --edu-deep:#24104F;
+  --edu-violet:#7C3AED;
+  --edu-blue:#2563EB;
+  --edu-magenta:#EC4899;
+  --edu-cyan:#22D3EE;
+  --edu-white:#F8FAFC;
+}
+.landing-shell{
+  min-height:100vh;
+  color:var(--edu-white);
+  background:
+    radial-gradient(circle at 12% 8%,rgba(124,58,237,.22),transparent 28%),
+    radial-gradient(circle at 86% 14%,rgba(37,99,235,.18),transparent 26%),
+    radial-gradient(circle at 62% 65%,rgba(236,72,153,.08),transparent 24%),
+    linear-gradient(135deg,var(--edu-midnight) 0%,#0b0824 48%,#100b2e 100%);
+}
+.landing-shell::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.22;
+  background-image:
+    linear-gradient(rgba(139,92,246,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(139,92,246,.045) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:linear-gradient(to bottom,#000,transparent 80%);
+}
+.brand-gradient-light{
+  background:linear-gradient(135deg,#c4b5fd 0%,#60a5fa 52%,#67e8f9 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.landing-eyebrow,.landing-kicker{
+  display:inline-flex;align-items:center;gap:.45rem;
+  font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.16em;
+  color:#67e8f9;
+}
+.landing-eyebrow{
+  padding:.48rem .75rem;border:1px solid rgba(34,211,238,.16);
+  border-radius:999px;background:rgba(34,211,238,.055);
+}
+.journey-node{
+  min-height:145px;border:1px solid rgba(255,255,255,.09);border-radius:1.1rem;
+  padding:1rem;background:rgba(255,255,255,.025);color:#94a3b8;
+  transition:transform .22s ease,border-color .22s ease,background .22s ease,box-shadow .22s ease;
+}
+.journey-node:hover{transform:translateY(-3px);border-color:rgba(139,92,246,.35);background:rgba(124,58,237,.07)}
+.journey-node-active{
+  color:#fff;border-color:rgba(139,92,246,.45);
+  background:linear-gradient(145deg,rgba(124,58,237,.18),rgba(37,99,235,.08));
+  box-shadow:0 14px 35px rgba(7,5,26,.3),inset 0 1px 0 rgba(255,255,255,.05);
+}
+.journey-number{font-size:.62rem;font-weight:900;letter-spacing:.12em;color:#a78bfa}
+.role-card{
+  position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.09);
+  border-radius:1.25rem;padding:1.3rem;background:rgba(255,255,255,.035);
+  transition:transform .22s ease,border-color .22s ease,background .22s ease;
+}
+.role-card::after{
+  content:"";position:absolute;width:90px;height:90px;right:-35px;top:-35px;border-radius:50%;
+  background:rgba(124,58,237,.15);filter:blur(25px);
+}
+.role-card:hover{transform:translateY(-4px);border-color:rgba(34,211,238,.22);background:rgba(255,255,255,.055)}
+@keyframes eduFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes eduGlow{0%,100%{opacity:.55}50%{opacity:1}}
+.landing-shell .skill-float{animation:eduFloat 4.5s ease-in-out infinite}
+.landing-shell .btn-primary{
+  background:linear-gradient(135deg,#7C3AED 0%,#2563EB 58%,#22D3EE 120%);
+  box-shadow:0 10px 28px rgba(124,58,237,.28);
+}
+.landing-shell .btn-primary:hover{box-shadow:0 15px 38px rgba(124,58,237,.38)}
+@media (max-width:640px){
+  .landing-shell h1{font-size:3.15rem}
+  .journey-node{min-height:120px}
+}
